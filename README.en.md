@@ -54,9 +54,10 @@ The script:
 1. Reads `GITHUB_TOKEN` from the environment.
 2. Packages the skill into a standard repository layout.
 3. Creates or reuses the GitHub repository.
-4. Initializes git, commits, and pushes.
+4. Initializes git and creates a local commit.
+5. Uploads files through the GitHub Contents API.
 
-It never writes the token to disk. Add `--dry-run` to verify local packaging without calling GitHub.
+It never writes the token to disk or stores it in a git remote. Add `--dry-run` to verify local packaging without calling GitHub.
 
 ## Core Method
 
