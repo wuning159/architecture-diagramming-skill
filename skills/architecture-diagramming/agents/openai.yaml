@@ -1,0 +1,5 @@
+interface:
+  display_name: "Architecture Diagramming"
+  short_description: "Create clear system architecture diagrams."
+  default_prompt: "Use $architecture-diagramming to design or review a technical architecture diagram."
+
