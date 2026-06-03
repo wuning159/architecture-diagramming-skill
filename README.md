@@ -30,7 +30,7 @@ python .\scripts\publish_skill_to_github.py `
   --description "Codex skill for creating and reviewing clear technical/system architecture diagrams."
 ```
 
-It reads `GITHUB_TOKEN` from the environment, creates or reuses the GitHub repository, commits the packaged skill, and pushes it. Run with `--dry-run` to verify the local packaging flow without calling GitHub.
+It reads `GITHUB_TOKEN` from the environment, creates or reuses the GitHub repository, creates a local commit, and uploads files through the GitHub Contents API. Run with `--dry-run` to verify the local packaging flow without calling GitHub.
 
 ## What It Helps With
 
