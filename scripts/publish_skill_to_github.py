@@ -157,6 +157,40 @@ def create_or_get_repo(token: str, repo_name: str, description: str, private: bo
         return github_request("GET", f"/repos/{owner}/{repo_name}", token)
 
 
+def github_put_contents(
+    token: str,
+    owner: str,
+    repo_name: str,
+    branch: str,
+    repo_dir: Path,
+) -> int:
+    uploaded = 0
+    for file_path in sorted(repo_dir.rglob("*")):
+        if not file_path.is_file() or ".git" in file_path.parts:
+            continue
+        rel = file_path.relative_to(repo_dir).as_posix()
+        content = file_path.read_bytes()
+        encoded = __import__("base64").b64encode(content).decode("ascii")
+        sha = None
+        try:
+            existing = github_request("GET", f"/repos/{owner}/{repo_name}/contents/{rel}?ref={branch}", token)
+            sha = existing.get("sha")
+        except RuntimeError as exc:
+            if "404" not in str(exc) and "409" not in str(exc):
+                raise
+        body = {
+            "message": f"Add {rel}",
+            "content": encoded,
+            "branch": branch,
+        }
+        if sha:
+            body["sha"] = sha
+            body["message"] = f"Update {rel}"
+        github_request("PUT", f"/repos/{owner}/{repo_name}/contents/{rel}", token, body)
+        uploaded += 1
+    return uploaded
+
+
 def build_repo(args: argparse.Namespace, work_dir: Path) -> Path:
     skill_path = args.skill_path.resolve()
     skill_md = skill_path / "SKILL.md"
@@ -196,14 +230,12 @@ def publish(args: argparse.Namespace) -> None:
         return
 
     repo = create_or_get_repo(token or "", args.repo_name, args.description, args.private)
-    clone_url = repo["clone_url"]
     html_url = repo["html_url"]
+    owner = repo["owner"]["login"]
     default_branch = repo.get("default_branch") or "main"
 
-    run(["git", "branch", "-M", default_branch], cwd=repo_dir)
-    run(["git", "remote", "add", "origin", clone_url], cwd=repo_dir)
-    run(["git", "push", "-u", "origin", default_branch], cwd=repo_dir)
-    print(f"Published: {html_url}")
+    uploaded = github_put_contents(token or "", owner, args.repo_name, default_branch, repo_dir)
+    print(f"Published with GitHub Contents API: {html_url} ({uploaded} files)")
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
