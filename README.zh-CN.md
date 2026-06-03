@@ -60,9 +60,10 @@ python .\scripts\publish_skill_to_github.py `
 1. 读取 `GITHUB_TOKEN` 环境变量。
 2. 打包指定 Skill 到标准仓库结构。
 3. 创建或复用同名 GitHub 仓库。
-4. 初始化 git、提交并 push。
+4. 初始化 git 并生成本地提交。
+5. 通过 GitHub Contents API 上传文件。
 
-脚本不会把 token 写入文件。可以先加 `--dry-run` 验证本地打包流程，不会访问 GitHub。
+脚本不会把 token 写入文件，也不会把 token 放进 git remote。可以先加 `--dry-run` 验证本地打包流程，不会访问 GitHub。
 
 ## 核心方法
 
